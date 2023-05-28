@@ -1,0 +1,6 @@
+Hallo {{workshop.order.first_name}},
+eurer eingereichter Workshop {{workshop.name}} entspricht so wie ihr ihn bisher beschrieben habt leider nicht unseren Vorstellungen. [Begründung]  Bitte überarbeitet euren Workshop nochmal, oder solltet ihr den Eindruck haben, wir haben euch missverstanden, beschreibt ihn nochmals etwas ausführlicher.
+
+Wir freuen uns auf euch!
+
+Euer Rovercamp Vorbereitungsteam

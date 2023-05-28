@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block title %}Workshops{% endblock %}
+{% block header %}Workshops{% endblock %}
+{% block actions %}
+{% endblock %}
+{% block body %}
+{% if object_list %}
+	<table class="table table-striped">
+		<thead>
+			<tr>
+				<th scope="col">Bestellung</th>
+				<th scope="col">Diözese / Bezirk</th>
+				<th scope="col">Stamm</th>
+				<th scope="col">Kontakt</th>
+				<th scope="col">Workshop Nummer</th>
+				<th scope="col">Workshop Status</th>
+				<th scope="col">Workshop Name</th>
+				<th scope="col">Aktionen</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for workshop in object_list %}
+				<tr>
+					<th scope="row"><a href="{% url 'order-detail' workshop.order.id %}">{{workshop.order.code}}</a></th>
+					<th scope="row">{{workshop.order.district}}</th>
+					<th scope="row">{{workshop.order.clan}}</th>
+					<th scope="row">{{workshop.order.first_name}} {{workshop.order.last_name}}</th>
+					<td>{% if workshop.annotated_id %}{{workshop.annotated_id}}{% else %}Noch nicht nummeriert{% endif %}</td>
+					<td class="{% if workshop.status == 'A' or workshop.status == 'E'%}bg-warning{% else %}{% if workshop.status == 'U' or workshop.status == 'R' %}bg-danger{% else %}bg-success{% endif %}{% endif %}">
+						{{workshop.get_status_display}}</td>
+					<td>{{workshop.name}}</td>
+					<td><a href="{% url 'workshop-detail' workshop.id %}" class="btn btn-primary btn-sm" role="button">Ansehen</a></td>
+				</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+{% else %}
+Keine Workshops gefunden!
+{% endif %}
+{% endblock %}

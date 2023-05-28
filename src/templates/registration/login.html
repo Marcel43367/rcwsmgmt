@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% load django_bootstrap5 %}
+{% block title %}Login{% endblock %}
+{% block header %}Login{% endblock %}
+{% block body %}
+	{% if user.is_authenticated %}
+		<h3>Du bist bereits angemeldet!</h3>
+	{% else %}
+		{% bootstrap_form_errors form %}
+		<form method="post" class="form">
+			{% csrf_token %}
+			{% bootstrap_form form %}
+			<button type="submit" class="btn btn-primary">Anmelden</button>
+		</form>
+	{% endif %}
+{% endblock %}

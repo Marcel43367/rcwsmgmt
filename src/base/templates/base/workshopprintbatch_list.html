@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}Druckaufträge{% endblock %}
+{% block header %}Druckaufträge{% endblock %}
+{% block actions %}
+<a href="{% url 'printbatch-annotate' %}" class="btn btn-primary" role="button">Workshops durchnummerieren</a>
+<a href="{% url 'printbatch-create' %}" class="btn btn-success" role="button">Neuen Druckauftrag erstellen</a>
+{% endblock %}
+{% block body %}
+{% if object_list %}
+	<table class="table table-striped">
+		<thead>
+			<tr>
+				<th scope="col">Druckauftrag</th>
+				<th scope="col">Anzahl Workshops</th>
+				<th scope="col">Aktionen</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for batch in object_list %}
+				<tr>
+					<th scope="row">Druckauftrag {{batch.created}}</th>
+					<td>{{batch.workshop_set.all.count}}</td>
+					<td><a href="{% url 'printbatch-download' batch.id %}" class="btn btn-sm btn-primary" role="button">Download</a></td>
+				</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+{% else %}
+Keine Druckaufträge gefunden!
+{% endif %}
+{% endblock %}

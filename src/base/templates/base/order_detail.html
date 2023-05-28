@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %}Workshop {{object.name}}{% endblock %}
+{% block header %}Workshop {{object.name}}{% endblock %}
+{% block actions %}
+	<a href="{{order.get_pretix_url}}" class="btn text-white" style="background-color: #7f5a91; border-color:#715081;" role="button">Bestellung in pretix öffnen</a>
+{% endblock %}
+{% block body %}
+	<table class="table table-striped">
+		<tbody>
+				<tr>
+					<th scope="row">Diözese / Bezirk</th>
+					<td>{{object.district}}</td>
+				</tr>
+				<tr>
+					<th scope="row">Stamm</th>
+					<td>{{object.clan}}</td>
+				</tr>
+				<tr>
+					<th scope="row">Kontakt</th>
+					<td>{{object.first_name}} {{object.last_name}}</td>
+				</tr>
+				<tr>
+					<th scope="row">Anzahl Teilnehmde</th>
+					<td>{{object.participant_count}}</td>
+				</tr>
+				<tr>
+					<th scope="row">Anzahl Workshops</th>
+					<td class="{% if object.sufficient_workshops %}bg-success{% else %}bg-danger{% endif %}">{{object.workshop_set.count}}</td>
+				</tr>
+		</tbody>
+	</table>
+<h1>Workshops</h1>
+	<table class="table table-striped">
+		<thead>
+			<tr>
+				<th scope="col">Workshop Status</th>
+				<th scope="col">Workshop Name</th>
+				<th scope="col">Workshop Beschreibung</th>
+				<th scope="col">Aktionen</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for workshop in order.workshop_set.all %}
+				<tr>
+					<td class="{% if workshop.status == 'A' or workshop.status == 'E'%}bg-warning{% else %}{% if workshop.status == 'U' or workshop.status == 'R' %}bg-danger{% else %}bg-success{% endif %}{% endif %}">
+						{{workshop.get_status_display}}</td>
+					<td>{{workshop.name}}</td>
+					<td>{{workshop.description}}</td>
+					<td><a href="{% url 'workshop-detail' workshop.id %}" class="btn btn-primary btn-sm" role="button">Ansehen</a></td>
+				</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+{% endblock %}

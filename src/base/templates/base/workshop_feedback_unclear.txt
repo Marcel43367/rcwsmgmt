@@ -1,0 +1,7 @@
+Hallo {{workshop.order.first_name}},
+unter eurern eingereichten Workshop {{workshop.name}} können wir uns nichts vorstellen.
+Bitte beschreibt ihn nochmals etwas ausführlicher.
+
+Wir freuen uns auf euch!
+
+Das Rovercamp Vorbereitungsteam

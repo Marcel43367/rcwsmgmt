@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% load django_bootstrap5 %}
+{% block title %}Workshops durchnummerieren{% endblock %}
+{% block header %}Workshops durchnummerieren{% endblock %}
+{% block body %}
+<form method="post" class="form">
+    {% csrf_token %}
+    {% bootstrap_form form %}
+	<button type="submit" class="btn btn-primary">Los</button>
+</form>
+{% endblock %}

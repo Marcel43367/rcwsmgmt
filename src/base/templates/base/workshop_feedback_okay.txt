@@ -1,0 +1,6 @@
+Hallo {{workshop.order.first_name}},
+eurer Workshop {{workshop.name}} hört sich gut an und geht so in Ordnung.
+
+Wir freuen uns auf euch!
+
+Euer Rovercamp Vorbereitungsteam

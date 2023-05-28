@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block title %}Workshop {{object.name}}{% endblock %}
+{% block header %}Workshop {{object.name}}{% endblock %}
+{% block actions %}
+	<a href="{% url 'order-detail' workshop.order.id %}" class="btn btn-secondary" role="button">Andere Workshops anzeigen</a>
+	<a href="{{workshop.order.get_pretix_url}}" class="btn text-white" style="background-color: #7f5a91; border-color:#715081;" role="button">Bestellung in pretix öffnen</a>
+{% endblock %}
+{% block body %}
+	<br>
+	<br>
+	<table class="table table-striped">
+		<tbody>
+				<tr>
+					<th scope="row">Diözese / Bezirk</th>
+					<td>{{object.order.district}}</td>
+				</tr>
+				<tr>
+					<th scope="row">Stamm</th>
+					<td>{{object.order.clan}}</td>
+				</tr>
+				<tr>
+					<th scope="row">Kontakt</th>
+					<td>{{object.order.first_name}} {{workshop.order.last_name}}</td>
+				</tr>
+				<tr>
+					<th scope="row">Workshop Status</th>
+					<td class="{% if workshop.status == 'A' or workshop.status == 'E'%}bg-warning{% else %}{% if workshop.status == 'U' or workshop.status == 'R' %}bg-danger{% else %}bg-success{% endif %}{% endif %}">{{object.get_status_display}}</td>
+				</tr>
+				<tr>
+					<th scope="row">Workshop Äquivalenz Punkte</th>
+					<td>{{object.weq}}</td>
+				</tr>
+				<tr>
+					<th scope="row">Workshop Name</th>
+					<td>{{object.name}}</td>
+				</tr>
+				<tr>
+					<th scope="row">Workshop Beschreibung</th>
+					<td>{{object.description}}</td>
+				</tr>
+		</tbody>
+	</table>
+<h1>Verlauf dieses Workshops</h1>
+<div class="container-fluid">
+	{% for entry in object.logentry_set.all|dictsort:"created" %}
+		<div class="container d-flex {% if entry.by_customer %}justify-content-start{% else %}justify-content-end{% endif %}">
+			<div class="col-sm-6">
+				<div class="card">
+					<div class="card-body">
+						<h5 class="card-title">{{entry.action}}</h5>
+						{% if entry.user %}<h6 class="card-subtitle mb-2 text-muted">{{entry.user}}</h6>{% endif %}
+						<h6 class="card-subtitle mb-2 text-muted">{% if entry.old_status %}{{entry.get_old_status_display}} -> {% endif %}{{entry.get_new_status_display}}</h6>
+						<p class="card-text"><b>{{entry.title}}</b><br>{{entry.message}}</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	<br>
+	{% endfor %}
+</div>
+<br>
+<div class="btn-group my-2 mx-2">
+	<a href="{% url 'workshop-feedback' object.id 'okay' 'V'%}" class="btn btn-success" role="button">Der Workshop geht so in Ordnung</a>
+	<a href="{% url 'workshop-feedback' object.id 'unclear' 'U'%}" class="btn btn-warning" role="button">Die Workshopbeschreibung ist unklar</a>
+	<a href="{% url 'workshop-feedback' object.id 'reject' 'R'%}" class="btn btn-danger" role="button">Der Workshop muss überarbeitet werden</a>
+	<a href="{% url 'workshop-feedback' object.id 'resubmit' 'R'%}" class="btn btn-danger" role="button">Der Workshop wird nachgereicht</a>
+</div>
+<br>
+<div class="btn-group my-2 mx-2">
+	<a href="{% url 'workshop-equivalent' object.id %}" class="btn btn-primary" role="button">Workshop Äquivalenz Punkte ändern</a>
+	<a href="{% url 'workshop-update' object.id %}" class="btn btn-secondary" role="button">Workshop Status manuell ändern</a>
+</div>
+<br>
+<br>
+
+{% endblock %}
