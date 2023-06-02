@@ -1,0 +1,10 @@
+Hallo {{order.first_name}},
+
+bei euren Workshops müsst ihr noch etwas nachlegen. Für die {{order.participant_count}} Teilnehmer die ihr angemeldet habt braucht ihr [WS] Workshops.
+Hier kannst du die Workshop-Bedingungen nochmal nachlesen: https://www.dpsg-paderborn.de/stufen-arbeitskreise/rover/rovercamp/rovercamp-2023/workshops/
+Wir haben entsprechend ausreichend Workshops zu eurer Anmeldung hinzugefügt.
+Ihr könnt die Workshopbeschreibung hier anpassen: {{workshop.order.get_pretix_user_url}}
+
+Wir freuen uns auf euch!
+
+Euer Rovercamp Vorbereitungsteam
