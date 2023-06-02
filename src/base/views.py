@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.mail import send_mail
 from django.db.models import Max
 from django.http import HttpResponse
 from django.views.generic import ListView, DetailView, FormView, View, UpdateView
@@ -75,6 +76,7 @@ class WorkshopFeedbackView(LoginRequiredMixin, FormView):
 	def form_valid(self, form):
 		workshop = get_object_or_404(Workshop, id=self.kwargs['pk'])
 		next_status = self.kwargs['next_status']
+		send_mail(form.cleaned_data['subject'], form.cleaned_data['message'], None, [workshop.order.email])
 		print(f"Sending Mail \"{form.cleaned_data['subject']}\":")
 		print(form.cleaned_data['message'])
 		entry = LogEntry()
