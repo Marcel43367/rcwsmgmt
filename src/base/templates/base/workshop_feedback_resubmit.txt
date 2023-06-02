@@ -1,5 +1,5 @@
 Hallo {{workshop.order.first_name}},
-sobald ihr euren Workshops wisst, könnt ihr diesen einfach auf abidigahi
+sobald ihr euren Workshops wisst, könnt ihr diese unter {{workshop.order.get_pretix_user_url}} bearbeiten.
 
 Wir freuen uns auf euch!
 

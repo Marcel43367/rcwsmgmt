@@ -32,6 +32,8 @@ class Command(BaseCommand):
 					rc_order = Order()
 					rc_order.participant_count = participant_count
 					rc_order.code = order['code']
+					rc_order.email = order['email']
+					rc_order.secret = order['secret']
 					rc_order.save()
 				else:
 					continue

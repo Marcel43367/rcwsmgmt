@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db.models import Model, CharField, TextField, PositiveIntegerField, DateTimeField, ForeignKey, CASCADE
-from django.db.models import BooleanField, SET_NULL, Sum
+from django.db.models import BooleanField, SET_NULL, Sum, EmailField
 class Order(Model):
 	clan = CharField(
 		max_length=64,
@@ -13,6 +13,8 @@ class Order(Model):
 	)
 	first_name = CharField(max_length=64, verbose_name="Vorname")
 	last_name = CharField(max_length=64, verbose_name="Nachname")
+	email = EmailField(verbose_name="E-Mail", max_length=254)
+	secret = CharField(max_length=32)
 	participant_count = PositiveIntegerField()
 	code = CharField(
 		max_length=16,
@@ -26,6 +28,9 @@ class Order(Model):
 	def sufficient_workshops(self):
 		order_weq = self.workshop_set.all().aggregate(Sum("weq"))['weq__sum']
 		return max(1, int(self.participant_count / settings.WORKSHOPS_PER_PARTICIPANT)) <= order_weq
+
+	def get_pretix_user_url(self):
+		return f"{settings.PRETIX_URL}{settings.PRETIX_ORGANIZER}/{settings.PRETIX_EVENT}/order/{self.code}/{self.secret}/"
 
 
 class WorkshopPrintBatch(Model):
