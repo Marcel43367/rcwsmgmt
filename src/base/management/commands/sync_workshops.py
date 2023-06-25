@@ -43,7 +43,7 @@ class Command(BaseCommand):
 			first_name = None
 			last_name = None
 			for position in order['positions']:
-				if position['item'] != settings.PRETIX_ORDER_CLAN_PRODUCT_ID:
+				if position['item'] != int(settings.PRETIX_ORDER_CLAN_PRODUCT_ID):
 					continue
 				for answer in position['answers']:
 					if answer['question_identifier'] == settings.PRETIX_ORDER_CLAN_QUESTION_NAME:
@@ -62,7 +62,7 @@ class Command(BaseCommand):
 			rc_order.save()
 
 			for position in order['positions']:
-				if position['item'] != settings.PRETIX_WORKSHOP_PRODUCT_ID:
+				if position['item'] != int(settings.PRETIX_WORKSHOP_PRODUCT_ID):
 					continue
 				workshop_name = None
 				workshop_description = None
