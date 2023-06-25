@@ -50,8 +50,10 @@ class Command(BaseCommand):
 						clan_name = answer['answer']
 					if answer['question_identifier'] == settings.PRETIX_ORDER_CLAN_QUESTION_DISTRICT:
 						district_name = answer['answer']
-				first_name = position['attendee_name_parts']['given_name']
-				last_name = position['attendee_name_parts']['family_name']
+					if answer['question_identifier'] == settings.PRETIX_ORDER_CLAN_CONTACT_GIVENNAME:
+						first_name = answer['answer']
+					if answer['question_identifier'] == settings.PRETIX_ORDER_CLAN_CONTACT_FAMILYNAME:
+						last_name = answer['answer']
 			if clan_name is None or first_name is None or last_name is None or district_name is None:
 				raise ValueError("Got an order without basic informations")
 			rc_order.clan = clan_name
