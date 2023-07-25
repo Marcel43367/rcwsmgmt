@@ -30,7 +30,7 @@ class Order(Model):
 		return max(1, int(self.participant_count / settings.WORKSHOPS_PER_PARTICIPANT)) <= order_weq
 
 	def get_pretix_user_url(self):
-		return f"{settings.PRETIX_URL}{settings.PRETIX_ORGANIZER}/{settings.PRETIX_EVENT}/order/{self.code}/{self.secret}/"
+		return f"{settings.PRETIX_URL}/{settings.PRETIX_ORGANIZER}/{settings.PRETIX_EVENT}/order/{self.code}/{self.secret}/"
 
 
 class WorkshopPrintBatch(Model):
