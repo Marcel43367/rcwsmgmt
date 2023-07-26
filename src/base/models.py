@@ -27,6 +27,8 @@ class Order(Model):
 
 	def sufficient_workshops(self):
 		order_weq = self.workshop_set.all().aggregate(Sum("weq"))['weq__sum']
+		if order_weq is None:
+			order_weq = 0
 		return max(1, int(self.participant_count / settings.WORKSHOPS_PER_PARTICIPANT)) <= order_weq
 
 	def get_pretix_user_url(self):
