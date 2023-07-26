@@ -147,6 +147,7 @@ STATIC_ROOT = os.environ.get('DJANGO_STATIC_ROOT', './collected_static')
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+EMAIL_FROM = os.environ['EMAIL_FROM']
 EMAIL_HOST = os.environ['EMAIL_HOST']
 EMAIL_HOST_PASSWORD = os.environ['EMAIL_HOST_PASSWORD']
 EMAIL_HOST_USER = os.environ['EMAIL_HOST_USER']
