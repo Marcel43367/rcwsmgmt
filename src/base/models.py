@@ -23,7 +23,7 @@ class Order(Model):
 	)
 
 	def get_pretix_url(self):
-		return f"{settings.PRETIX_URL}control/event/{settings.PRETIX_ORGANIZER}/{settings.PRETIX_EVENT}/orders/{self.code}/"
+		return f"{settings.PRETIX_URL}/control/event/{settings.PRETIX_ORGANIZER}/{settings.PRETIX_EVENT}/orders/{self.code}/"
 
 	def sufficient_workshops(self):
 		order_weq = self.workshop_set.all().aggregate(Sum("weq"))['weq__sum']
