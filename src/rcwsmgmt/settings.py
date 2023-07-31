@@ -153,6 +153,7 @@ EMAIL_HOST_PASSWORD = os.environ['EMAIL_HOST_PASSWORD']
 EMAIL_HOST_USER = os.environ['EMAIL_HOST_USER']
 EMAIL_PORT = int(os.environ['EMAIL_PORT'])
 EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', "y").lower() in ["true", "1", "y", "yes"]
+ADMIN_EMAIL = os.environ['ADMIN_EMAIL']
 
 
 
