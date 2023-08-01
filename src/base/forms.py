@@ -1,7 +1,7 @@
 from django.forms import Form, Textarea, CharField, BooleanField
 
 class WorkshopFeedbackForm(Form):
-	subject = CharField(required=True)
+	subject = CharField(required=True, max_length=64)
 	message = CharField(widget=Textarea, required=True)
 
 class WorkshopAnnotateForm(Form):
