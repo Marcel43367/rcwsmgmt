@@ -59,6 +59,7 @@ class Workshop(Model):
 	status = CharField(max_length=1, choices=STATUS_CHOICE, verbose_name="Status")
 	printed = ForeignKey(WorkshopPrintBatch, null=True, on_delete=SET_NULL)
 	annotated_id = PositiveIntegerField(null=True)
+	updated = DateTimeField(auto_now=True)
 
 
 class LogEntry(Model):

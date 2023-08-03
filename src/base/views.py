@@ -22,7 +22,7 @@ class OrderDetailView(LoginRequiredMixin, DetailView):
 
 class WorkshopListView(LoginRequiredMixin, ListView):
 	model = Workshop
-	ordering = ['status']
+	ordering = ['status', 'updated']
 
 class WorkshopDetailView(LoginRequiredMixin, DetailView):
 	model = Workshop
