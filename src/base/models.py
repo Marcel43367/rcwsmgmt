@@ -70,5 +70,5 @@ class LogEntry(Model):
 	old_status = CharField(max_length=1, null=True, choices=Workshop.STATUS_CHOICE, verbose_name="Alter Status")
 	new_status = CharField(max_length=1, choices=Workshop.STATUS_CHOICE, verbose_name="Neuer Status")
 	action = CharField(max_length=64)
-	title = CharField(max_length=64, verbose_name="Betreff")
+	title = CharField(max_length=256, verbose_name="Betreff")
 	message = TextField(verbose_name="Nachricht")
