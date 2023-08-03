@@ -113,4 +113,4 @@ class Command(BaseCommand):
 						entry.by_customer = True
 						entry.save()
 			except Exception as e:
-				send_mail("Fehler beim pretix sync von Bestellung {}".format(order['code']), str(e), settings.EMAIL_FROM, settings.ADMIN_EMAIL)
+				send_mail("Fehler beim pretix sync von Bestellung {}".format(order['code']), str(e), settings.EMAIL_FROM, [settings.ADMIN_EMAIL])
