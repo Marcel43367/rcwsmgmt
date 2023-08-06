@@ -1,5 +1,5 @@
 Hallo {{workshop.order.first_name}},
-eurer Workshop {{workshop.name}} hört sich gut an und geht so in Ordnung.
+eurer Workshop "{{workshop.name}}" hört sich gut an und geht so in Ordnung.
 
 Die Einzelheiten eurer Anmeldung kannst du dir hier ansehen:
 {{workshop.order.get_pretix_user_url}}

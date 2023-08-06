@@ -1,5 +1,5 @@
 Hallo {{workshop.order.first_name}},
-unter eurern eingereichten Workshop {{workshop.name}} können wir uns nichts vorstellen.
+unter eurern eingereichten Workshop "{{workshop.name}}" können wir uns nichts vorstellen.
 Bitte beschreibt ihn nochmals etwas ausführlicher.
 Ihr könnt die Beschreibung eurer Workshops unter {{workshop.order.get_pretix_user_url}} ändern.
 

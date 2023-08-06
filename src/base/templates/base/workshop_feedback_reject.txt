@@ -1,5 +1,5 @@
 Hallo {{workshop.order.first_name}},
-eurer eingereichter Workshop {{workshop.name}} entspricht so wie ihr ihn bisher beschrieben habt leider nicht unseren Vorstellungen.
+eurer eingereichter Workshop "{{workshop.name}}" entspricht so wie ihr ihn bisher beschrieben habt leider nicht unseren Vorstellungen.
 [Begründung]
 Bitte überarbeitet euren Workshop nochmal, oder solltet ihr den Eindruck haben, wir haben euch missverstanden, beschreibt ihn nochmals etwas ausführlicher.
 Euren Workshop könnt ihr unter folgenden Link überarbeiten: {{workshop.order.get_pretix_user_url}}
