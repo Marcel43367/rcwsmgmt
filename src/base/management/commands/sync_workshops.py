@@ -118,6 +118,15 @@ class Command(BaseCommand):
 
 				for workshop in rc_order.workshop_set.all():
 					if workshop not in updated_workshops:
+						entry = LogEntry()
+						entry.workshop = workshop
+						entry.action = "Workshop gelöscht"
+						entry.title = workshop.name
+						entry.message = workshop.description
+						entry.old_status = workshop.status
+						entry.new_status = Workshop.STATUS_DELETED
+						entry.by_customer = True
+						entry.save()
 						workshop.status = Workshop.STATUS_DELETED
 						workshop.save()
 			except Exception as e:
