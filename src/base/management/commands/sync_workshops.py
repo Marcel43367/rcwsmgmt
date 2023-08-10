@@ -118,6 +118,7 @@ class Command(BaseCommand):
 
 				for workshop in rc_order.workshop_set.all():
 					if workshop not in updated_workshops:
-						workshop.delete()
+						workshop.status = Workshop.STATUS_DELETED
+						workshop.save()
 			except Exception as e:
 				send_mail("Fehler beim pretix sync von Bestellung {}".format(order['code']), str(e), settings.EMAIL_FROM, [settings.ADMIN_EMAIL])
