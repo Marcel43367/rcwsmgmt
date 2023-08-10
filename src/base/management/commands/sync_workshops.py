@@ -65,6 +65,7 @@ class Command(BaseCommand):
 				rc_order.participant_count = participant_count
 				rc_order.save()
 
+				updated_workshops = set()
 				for position in order['positions']:
 					if position['item'] != int(settings.PRETIX_WORKSHOP_PRODUCT_ID):
 						continue
@@ -79,6 +80,7 @@ class Command(BaseCommand):
 						raise ValueError("Got an Workshop without answers from order {}".format(order['code']))
 					try:
 						rc_workshop = rc_order.workshop_set.get(order=rc_order, position_id=position['positionid'])
+						updated_workshops.add(rc_workshop)
 						if rc_workshop.name == workshop_name and rc_workshop.description == workshop_description:
 							continue
 						entry = LogEntry()
@@ -103,6 +105,7 @@ class Command(BaseCommand):
 						rc_workshop.position_id = position['positionid']
 						rc_workshop.status = Workshop.STATUS_NEW
 						rc_workshop.save()
+						updated_workshops.add(rc_workshop)
 						entry = LogEntry()
 						entry.workshop = rc_workshop
 						entry.action = "Workshop wurde eingereicht"
@@ -112,5 +115,9 @@ class Command(BaseCommand):
 						entry.new_status = Workshop.STATUS_NEW
 						entry.by_customer = True
 						entry.save()
+
+				for workshop in rc_order.workshop_set.all():
+					if workshop not in updated_workshops:
+						workshop.delete()
 			except Exception as e:
 				send_mail("Fehler beim pretix sync von Bestellung {}".format(order['code']), str(e), settings.EMAIL_FROM, [settings.ADMIN_EMAIL])
