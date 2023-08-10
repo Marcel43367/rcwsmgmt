@@ -44,10 +44,12 @@ class Workshop(Model):
 	STATUS_REJECTED = "R"
 	STATUS_UNCLEAR = "U"
 	STATUS_OKAY = "V"
+	STATUS_OKAY_WITHOUT_PRINTING = "X"
 	STATUS_CHOICE=(
 		(STATUS_NEW, "Neuer Workshop"),
 		(STATUS_REVISED, "Workshop überarbeitet"),
 		(STATUS_OKAY, "Workshop okay"),
+		(STATUS_OKAY_WITHOUT_PRINTING, "Workshop okay (Nicht drucken)"),
 		(STATUS_REJECTED, "Workshop nicht okay"),
 		(STATUS_UNCLEAR, "Workshop unklar"),
 	)
