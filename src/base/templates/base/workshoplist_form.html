@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% load django_bootstrap5 %}
+{% block title %}Workshopliste erstellen{% endblock %}
+{% block header %}Workshopliste erstellen{% endblock %}
+{% block body %}
+{% bootstrap_form_errors form %}
+	<form method="post" class="form">
+		{% csrf_token %}
+		{% bootstrap_form form %}
+		<button type="submit" class="btn btn-primary">Speichern</button>
+	</form>
+{% endblock %}

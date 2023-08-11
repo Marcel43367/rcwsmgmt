@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db.models import Model, CharField, TextField, PositiveIntegerField, DateTimeField, ForeignKey, CASCADE
-from django.db.models import BooleanField, SET_NULL, Sum, EmailField
+from django.db.models import BooleanField, SET_NULL, Sum, EmailField, ManyToManyField
 class Order(Model):
 	clan = CharField(
 		max_length=64,
@@ -65,6 +65,8 @@ class Workshop(Model):
 	annotated_id = PositiveIntegerField(null=True)
 	updated = DateTimeField(auto_now=True)
 
+	def __str__(self):
+		return self.name
 
 class LogEntry(Model):
 	workshop = ForeignKey(Workshop, on_delete=CASCADE)
@@ -76,3 +78,11 @@ class LogEntry(Model):
 	action = CharField(max_length=64)
 	title = CharField(max_length=256, verbose_name="Betreff")
 	message = TextField(verbose_name="Nachricht")
+
+
+class WorkshopList(Model):
+	name = CharField(max_length=256, verbose_name="Name")
+	workshops = ManyToManyField(Workshop)
+
+	def __str__(self):
+		return self.name

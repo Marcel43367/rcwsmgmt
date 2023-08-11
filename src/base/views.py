@@ -4,15 +4,16 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.db.models import Max
 from django.http import HttpResponse
-from django.views.generic import ListView, DetailView, FormView, View, UpdateView
+from django.views.generic import ListView, DetailView, FormView, View, UpdateView, CreateView, DeleteView
 from django.views.generic.base import RedirectView
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from django.urls import reverse, reverse_lazy
 from io import BytesIO
 from xlsxwriter import Workbook
-from base.models import  Workshop, Order, LogEntry, WorkshopPrintBatch
-from base.forms import WorkshopFeedbackForm, WorkshopAnnotateForm, WorkshopPrintForm
+from base.models import  Workshop, Order, LogEntry, WorkshopPrintBatch, WorkshopList
+from base.forms import WorkshopFeedbackForm, WorkshopAnnotateForm, WorkshopPrintForm, WorkshopAddToListForm
+from base.forms import WorkshopRemoveFromListForm
 
 class OrderListView(LoginRequiredMixin, ListView):
 	model = Order
@@ -171,3 +172,57 @@ class WorkshopPrintBatchDownloadView(LoginRequiredMixin, View):
 		response = HttpResponse(output, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 		response['Content-Disposition'] = 'attachment; filename={}'.format(filename)
 		return response
+
+class WorkshopListCreateView(LoginRequiredMixin, CreateView):
+	model = WorkshopList
+	success_url = reverse_lazy('workshoplist-list')
+	fields = ("name",)
+
+class WorkshopListListView(LoginRequiredMixin, ListView):
+	model = WorkshopList
+	ordering = ['name']
+
+class WorkshopListDetailView(LoginRequiredMixin, DetailView):
+	model = WorkshopList
+
+class WorkshopListDeleteView(LoginRequiredMixin, DeleteView):
+	model = WorkshopList
+	success_url = reverse_lazy('workshoplist-list')
+
+class WorkshopAddToListFormView(LoginRequiredMixin, FormView):
+	form_class = WorkshopAddToListForm
+	template_name = "base/workshop_add_to_list.html"
+	success_url = reverse_lazy('workshop-list')
+
+	def form_valid(self, form):
+		workshop = get_object_or_404(Workshop, pk=self.kwargs['pk'])
+		workshop_list = form.cleaned_data['workshop_list']
+		if workshop in workshop_list.workshops.all():
+			messages.error(self.request, "Der Workshop befindet sich bereits in der Liste")
+		else:
+			workshop_list.workshops.add(workshop)
+			workshop_list.save()
+			messages.success(self.request, "Der Workshop wurde zu der Liste hinzugefügt")
+		return super().form_valid(form)
+
+class WorkshopRemoveFromListFormView(LoginRequiredMixin, FormView):
+	form_class = WorkshopRemoveFromListForm
+	template_name = "base/workshop_remove_from_list.html"
+	success_url = reverse_lazy('workshoplist-list')
+
+	def get_context_data(self, **kwargs):
+		ctx = super().get_context_data(**kwargs)
+		ctx['workshop'] = get_object_or_404(Workshop, pk=self.kwargs['pk'])
+		ctx['workshop_list'] = get_object_or_404(WorkshopList, pk=self.kwargs['wl_pk'])
+		return ctx
+
+	def form_valid(self, form):
+		workshop = get_object_or_404(Workshop, pk=self.kwargs['pk'])
+		workshop_list = get_object_or_404(WorkshopList, pk=self.kwargs['wl_pk'])
+		if workshop in workshop_list.workshops.all():
+			workshop_list.workshops.remove(workshop)
+			workshop_list.save()
+			messages.success(self.request, "Der Workshop wurde von der Liste entfernt")
+		else:
+			messages.error(self.request, "Der Workshop befindet sich bereits in der Liste")
+		return super().form_valid(form)

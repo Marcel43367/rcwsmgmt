@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block title %}Workshoplisten{% endblock %}
+{% block header %}Workshoplisten{% endblock %}
+{% block actions %}
+<div class="btn-group my-2 mx-2">
+	<a href="{% url 'workshoplist-create' %}" class="btn btn-primary" role="button">Workshopliste erstellen</a>
+</div>
+{% endblock %}
+{% block body %}
+{% if object_list %}
+	<table class="table table-striped">
+		<thead>
+			<tr>
+				<th scope="col">Name</th>
+				<th scope="col">Aktionen</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for list in object_list %}
+				<tr>
+					<th scope="row">{{list.name}}</th>
+					<td>
+						<a href="{% url 'workshoplist-detail' list.id %}" class="btn btn-primary" role="button">Ansehen</a>
+						<a href="{% url 'workshoplist-delete' list.id %}" class="btn btn-danger" role="button">Löschen</a>
+					</td>
+				</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+{% else %}
+Keine Workshoplisten gefunden!
+{% endif %}
+{% endblock %}

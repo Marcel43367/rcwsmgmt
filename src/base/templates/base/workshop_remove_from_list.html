@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% load django_bootstrap5 %}
+{% block title %}Workshop von Workshopliste entfernen{% endblock %}
+{% block header %}Workshop von Workshopliste entfernen{% endblock %}
+{% block body %}
+	<form method="post">
+        {% csrf_token %}
+		<p>Möchtest du die den Workshop "{{ workshop }}" von der Workshopliste "{{ workshop_list }}" entfernen?</p>
+		<input class="btn btn-danger" type="submit" value="Entfernen"/>
+	</form>
+{% endblock %}
