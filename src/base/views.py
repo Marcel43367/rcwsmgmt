@@ -190,7 +190,10 @@ class WorkshopAllDownloadView(LoginRequiredMixin, View):
 			sheet.write(row, 0, str(workshop.order.district))
 			sheet.write(row, 1, str(workshop.order.clan))
 			sheet.write(row, 2, str(workshop.name))
-			sheet.write(row, 3, int(workshop.annotated_id))
+			if workshop.annotated_id is None:
+				sheet.write(row, 3, "Noch nicht nummeriert")
+			else:
+				sheet.write(row, 3, int(workshop.annotated_id))
 			row += 1
 
 		workbook.close()
