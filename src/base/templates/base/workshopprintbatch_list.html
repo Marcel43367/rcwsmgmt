@@ -21,7 +21,7 @@
 				<tr>
 					<th scope="row">Druckauftrag {{batch.created}}</th>
 					<td>{{batch.workshop_set.all.count}}</td>
-					<td><a href="{% url 'printbatch-download' batch.id %}" class="btn btn-sm btn-primary" role="button">Download</a></td>
+					<td><a href="{% url 'printbatch-download' batch.id %}" class="btn btn-sm btn-success" role="button">Download</a></td>
 				</tr>
 			{% endfor %}
 		</tbody>
