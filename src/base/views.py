@@ -156,14 +156,16 @@ class WorkshopPrintBatchDownloadView(LoginRequiredMixin, View):
 		output = BytesIO()
 		workbook = Workbook(output)
 		sheet = workbook.add_worksheet("Workshops")
-		sheet.write(0, 0, "Stamm")
-		sheet.write(0, 1, "Name")
-		sheet.write(0, 2, "Workshop Nummer")
+		sheet.write(0, 0, "Diözese / Bezirk")
+		sheet.write(0, 1, "Stamm")
+		sheet.write(0, 2, "Name")
+		sheet.write(0, 3, "Workshop Nummer")
 		row = 1
 		for workshop in batch.workshop_set.all():
-			sheet.write(row, 0, str(workshop.order.clan))
-			sheet.write(row, 1, str(workshop.name))
-			sheet.write(row, 2, int(workshop.annotated_id))
+			sheet.write(row, 0, str(workshop.order.district))
+			sheet.write(row, 1, str(workshop.order.clan))
+			sheet.write(row, 2, str(workshop.name))
+			sheet.write(row, 3, int(workshop.annotated_id))
 			row += 1
 
 		workbook.close()
