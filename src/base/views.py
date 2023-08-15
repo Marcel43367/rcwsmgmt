@@ -156,7 +156,7 @@ class WorkshopPrintBatchDownloadView(LoginRequiredMixin, View):
 		output = BytesIO()
 		workbook = Workbook(output)
 		sheet = workbook.add_worksheet("Workshops")
-		sheet.write(0, 0, "Stann")
+		sheet.write(0, 0, "Stamm")
 		sheet.write(0, 1, "Name")
 		sheet.write(0, 2, "Workshop Nummer")
 		row = 1
