@@ -22,6 +22,7 @@
 					<th scope="row">{{list.name}}</th>
 					<td>
 						<a href="{% url 'workshoplist-detail' list.id %}" class="btn btn-primary btn-sm" role="button">Ansehen</a>
+						<a href="{% url 'workshoplist-download' list.id %}" class="btn btn-success btn-sm" role="button">Download</a>
 						<a href="{% url 'workshoplist-delete' list.id %}" class="btn btn-danger btn-sm" role="button">Löschen</a>
 					</td>
 				</tr>

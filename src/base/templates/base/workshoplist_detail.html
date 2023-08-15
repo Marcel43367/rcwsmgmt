@@ -3,6 +3,8 @@
 {% block title %}{{object.name}}{% endblock %}
 {% block header %}{{object.name}}{% endblock %}
 {% block actions %}
+<a href="{% url 'workshoplist-download' object.id %}" class="btn btn-success" role="button">Download</a>
+
 {% endblock %}
 {% block body %}
 

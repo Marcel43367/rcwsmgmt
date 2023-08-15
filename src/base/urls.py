@@ -3,7 +3,7 @@ from base.views import WorkshopListView, WorkshopDetailView, WorkshopFeedbackVie
 from base.views import OrderRedirect, WorkshopPrintBatchListView, WorkshopAnnotateView, WorkshopPrintView
 from base.views import WorkshopPrintBatchDownloadView, WorkshopEquivalentUpdateView, WorkshopUpdateView
 from base.views import WorkshopListCreateView, WorkshopListListView, WorkshopListDetailView, WorkshopListDeleteView
-from base.views import WorkshopAddToListFormView, WorkshopRemoveFromListFormView
+from base.views import WorkshopAddToListFormView, WorkshopRemoveFromListFormView, WorkshopListDownloadView
 urlpatterns = [
     path('', WorkshopListView.as_view(), name="workshop-list"),
     path('workshop/<int:pk>/detail', WorkshopDetailView.as_view(), name='workshop-detail'),
@@ -23,5 +23,6 @@ urlpatterns = [
     path('lists', WorkshopListListView.as_view(), name='workshoplist-list'),
     path('lists/<int:pk>', WorkshopListDetailView.as_view(), name='workshoplist-detail'),
     path('lists/<int:pk>/delete', WorkshopListDeleteView.as_view(), name='workshoplist-delete'),
+    path('lists/<int:pk>/download', WorkshopListDownloadView.as_view(), name='workshoplist-download'),
 ]
 
