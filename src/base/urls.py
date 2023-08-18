@@ -16,7 +16,7 @@ urlpatterns = [
     path('orders', OrderListView.as_view(), name="order-list"),
     path('orders/<int:pk>/detail', OrderDetailView.as_view(), name="order-detail"),
     path('orders/bycode', OrderRedirect.as_view(), name="order-by-code"),
-    path('orders/download', ClanListDownloadView.as_view(), "order-download"),
+    path('orders/download', ClanListDownloadView.as_view(), name="order-download"),
     path('printbatches', WorkshopPrintBatchListView.as_view(), name="printbatch-list"),
     path('printbatches/annotate', WorkshopAnnotateView.as_view(), name="printbatch-annotate"),
     path('printbatches/create', WorkshopPrintView.as_view(), name="printbatch-create"),
