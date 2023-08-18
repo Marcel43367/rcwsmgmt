@@ -4,7 +4,7 @@ from base.views import OrderRedirect, WorkshopPrintBatchListView, WorkshopAnnota
 from base.views import WorkshopPrintBatchDownloadView, WorkshopEquivalentUpdateView, WorkshopUpdateView
 from base.views import WorkshopListCreateView, WorkshopListListView, WorkshopListDetailView, WorkshopListDeleteView
 from base.views import WorkshopAddToListFormView, WorkshopRemoveFromListFormView, WorkshopListDownloadView
-from base.views import WorkshopAllDownloadView
+from base.views import WorkshopAllDownloadView, ClanListDownloadView
 urlpatterns = [
     path('', WorkshopListView.as_view(), name="workshop-list"),
     path('workshop/<int:pk>/detail', WorkshopDetailView.as_view(), name='workshop-detail'),
@@ -16,6 +16,7 @@ urlpatterns = [
     path('orders', OrderListView.as_view(), name="order-list"),
     path('orders/<int:pk>/detail', OrderDetailView.as_view(), name="order-detail"),
     path('orders/bycode', OrderRedirect.as_view(), name="order-by-code"),
+    path('orders/download', ClanListDownloadView.as_view(), "order-download"),
     path('printbatches', WorkshopPrintBatchListView.as_view(), name="printbatch-list"),
     path('printbatches/annotate', WorkshopAnnotateView.as_view(), name="printbatch-annotate"),
     path('printbatches/create', WorkshopPrintView.as_view(), name="printbatch-create"),

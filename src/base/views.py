@@ -203,6 +203,31 @@ class WorkshopAllDownloadView(LoginRequiredMixin, View):
 		response['Content-Disposition'] = 'attachment; filename={}'.format(filename)
 		return response
 
+class ClanListDownloadView(LoginRequiredMixin, View):
+
+	def get(self, request, *args, **kwargs):
+		output = BytesIO()
+		workbook = Workbook(output)
+		sheet = workbook.add_worksheet("Stämme")
+		sheet.write(0, 0, "Diözese / Bezirk")
+		sheet.write(0, 1, "Stamm")
+		sheet.write(0, 2, "Name")
+		sheet.write(0, 3, "Anzahl Teilnehmende")
+		row = 1
+		for order in Order.objects.all():
+			sheet.write(row, 0, str(order.district))
+			sheet.write(row, 1, str(order.clan))
+			sheet.write(row, 2, str(f"{order.first_name} {order.last_name}"))
+			sheet.write(row, 3, order.participant_count)
+			row += 1
+
+		workbook.close()
+		output.seek(0)
+		filename="Alle-Staemme.xlsx"
+		response = HttpResponse(output, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+		response['Content-Disposition'] = 'attachment; filename={}'.format(filename)
+		return response
+
 class WorkshopListDownloadView(LoginRequiredMixin, View):
 
 	def get(self, request, *args, **kwargs):
