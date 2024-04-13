@@ -1,5 +1,5 @@
-django==4.2.*
-django-bootstrap5==23.*
+django==5.0.*
+django-bootstrap5==24.*
 requests==2.31.*
-xlsxwriter==3.1.*
-psycopg2==2.9.*
+xlsxwriter==3.2.*
+psycopg==3.1.*
