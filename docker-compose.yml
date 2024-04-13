@@ -1,7 +1,7 @@
 version: "2.4"
 services:
   rcwsmgmt_db:
-    image: postgres:15.3
+    image: postgres:16.2
     environment:
       - POSTGRES_DB=${DB_NAME}
       - POSTGRES_USER=${DB_USER}
