@@ -26,9 +26,9 @@ class Order(Model):
 		return f"{settings.PRETIX_URL}/control/event/{settings.PRETIX_ORGANIZER}/{settings.PRETIX_EVENT}/orders/{self.code}/"
 
 	def sufficient_workshops(self):
-		order_weq = self.workshop_set.all().aggregate(Sum("weq"))['weq__sum']
-		if order_weq is None:
-			order_weq = 0
+		order_weq = 0
+		for ws in self.workshop_set.all():
+			order_weq += ws.get_weq()
 		return max(1, int(self.participant_count / settings.WORKSHOPS_PER_PARTICIPANT)) <= order_weq
 
 	def get_pretix_user_url(self):
@@ -55,11 +55,29 @@ class Workshop(Model):
 		(STATUS_UNCLEAR, "Workshop unklar"),
 		(STATUS_DELETED, "Workshop gelöscht"),
 	)
+	TIMESLOT_MORNING = "M"
+	TIMESLOT_AFTERNOON = "A"
+	TIMESLOT_BOTH = "B"
+	TIMESLOT_CAMP_SERVICE = "C"
+	TIMESLOT_CHOICE=(
+		(TIMESLOT_MORNING, "Vormittags"),
+		(TIMESLOT_AFTERNOON, "Nachmittags"),
+		(TIMESLOT_BOTH, "Vor- & Nachmittags"),
+		(TIMESLOT_CAMP_SERVICE, ""),
+	)
+	LOCATION_CENTRAL = "Z"
+	LOCATION_DECENTRAL = "D"
+	LOCATION_CHOICES=(
+		(LOCATION_CENTRAL, "Zentral"),
+		(LOCATION_DECENTRAL, "Dezentral"),
+	)
 	name = CharField(max_length=64, verbose_name="Name")
 	order = ForeignKey(Order, on_delete=CASCADE)
 	description = TextField(verbose_name="Beschreibung")
 	position_id = PositiveIntegerField()
 	weq = PositiveIntegerField(default=1, verbose_name="Workshop Äquivalenz Punkte")
+	time_slot = CharField(max_length=1, choices=TIMESLOT_CHOICE, verbose_name="Workshopphase")
+	location = CharField(max_length=1, choices=LOCATION_CHOICES, default=LOCATION_CENTRAL, verbose_name="Ort")
 	status = CharField(max_length=1, choices=STATUS_CHOICE, verbose_name="Status")
 	printed = ForeignKey(WorkshopPrintBatch, null=True, on_delete=SET_NULL)
 	annotated_id = PositiveIntegerField(null=True)
@@ -67,6 +85,12 @@ class Workshop(Model):
 
 	def __str__(self):
 		return self.name
+
+	def get_weq(self):
+		if self.time_slot == Workshop.TIMESLOT_BOTH:
+			return self.weq * 2
+		return self.weq
+
 
 class LogEntry(Model):
 	workshop = ForeignKey(Workshop, on_delete=CASCADE)
@@ -78,6 +102,7 @@ class LogEntry(Model):
 	action = CharField(max_length=64)
 	title = CharField(max_length=256, verbose_name="Betreff")
 	message = TextField(verbose_name="Nachricht")
+	time_slot = CharField(max_length=1, choices=Workshop.TIMESLOT_CHOICE, verbose_name="Workshopphase")
 
 
 class WorkshopList(Model):

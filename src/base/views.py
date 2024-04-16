@@ -48,6 +48,7 @@ class WorkshopUpdateView(LoginRequiredMixin, UpdateView):
 		entry.action = "Status manuell geändert"
 		entry.title = ""
 		entry.message = ""
+		entry.time_slot = self.get_object().time_slot
 		entry.old_status = self.get_object().status
 
 		valid = super(WorkshopUpdateView, self).form_valid(form)
@@ -84,6 +85,7 @@ class WorkshopFeedbackView(LoginRequiredMixin, FormView):
 		entry.action = "Rückmeldung versendet"
 		entry.title = form.cleaned_data['subject']
 		entry.message = form.cleaned_data['message']
+		entry.time_slot = workshop.time_slot
 		entry.old_status = workshop.status
 		entry.new_status = next_status
 		entry.user = self.request.user
@@ -99,7 +101,7 @@ class WorkshopFeedbackView(LoginRequiredMixin, FormView):
 
 class OrderRedirect(LoginRequiredMixin, RedirectView):
 	def get_redirect_url(self, *args, **kwargs):
-		code = self.request.GET['code']
+		code = self.request.GET['code'].upper()
 		try:
 			order = Order.objects.get(code=code)
 		except Order.DoesNotExist:
@@ -310,3 +312,26 @@ class WorkshopRemoveFromListFormView(LoginRequiredMixin, FormView):
 		else:
 			messages.error(self.request, "Der Workshop befindet sich bereits in der Liste")
 		return super().form_valid(form)
+
+class WorkshopLocationUpdateView(LoginRequiredMixin, UpdateView):
+	model = Workshop
+	fields = ("location", )
+	success_url = reverse_lazy("order-list")
+
+	def form_valid(self, form):
+		entry = LogEntry()
+		entry.workshop = self.get_object()
+		entry.title = ""
+		entry.message = ""
+		old_location = self.get_object().get_location_display()
+		entry.time_slot = self.get_object().time_slot
+		entry.old_status = self.get_object().status
+
+		valid = super(WorkshopLocationUpdateView, self).form_valid(form)
+		new_location = self.get_object().get_location_display()
+
+		entry.action = f"Ort des Workshops von {old_location} auf {new_location} geändert"
+		entry.new_status = self.get_object().status
+		entry.user = self.request.user
+		entry.save()
+		return valid

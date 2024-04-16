@@ -15,6 +15,8 @@
 				<th scope="col">Kontakt</th>
 				<th scope="col">Workshop Nummer</th>
 				<th scope="col">Workshop Status</th>
+				<th scope="col">Workshop Phase</th>
+				<th scope="col">Workshop Ort</th>
 				<th scope="col">Workshop Name</th>
 				<th scope="col">Aktionen</th>
 			</tr>
@@ -29,6 +31,8 @@
 					<td>{% if workshop.annotated_id %}{{workshop.annotated_id}}{% else %}Noch nicht nummeriert{% endif %}</td>
 					<td class="{% if workshop.status == 'A' or workshop.status == 'E'%}bg-warning{% else %}{% if workshop.status == 'U' or workshop.status == 'R' %}bg-danger{% else %}bg-success{% endif %}{% endif %}">
 						{{workshop.get_status_display}}</td>
+					<td>{{workshop.get_time_slot_display}}</td>
+					<td>{{workshop.get_location_display}}</td>
 					<td>{{workshop.name}}</td>
 					<td><a href="{% url 'workshop-detail' workshop.id %}" class="btn btn-primary btn-sm" role="button">Ansehen</a></td>
 				</tr>

@@ -16,6 +16,12 @@ class Command(BaseCommand):
 		admission_product_ids = [x['id'] for x in products if x['admission']]
 		orders = api.get_orders()
 
+		timeslot_mapping = {
+			settings.PRETIX_WORKSHOP_TIMESLOT_ANSWER_MORNING: Workshop.TIMESLOT_MORNING,
+			settings.PRETIX_WORKSHOP_TIMESLOT_ANSWER_AFTERNOON: Workshop.TIMESLOT_AFTERNOON,
+			settings.PRETIX_WORKSHOP_TIMESLOT_ANSWER_BOTH: Workshop.TIMESLOT_BOTH,
+		}
+
 		for order in orders:
 			try:
 				participant_count = 0
@@ -71,17 +77,23 @@ class Command(BaseCommand):
 						continue
 					workshop_name = None
 					workshop_description = None
+					workshop_timeslot = None
 					for answer in position['answers']:
 						if answer['question_identifier'] == settings.PRETIX_WORKSHOP_QUESTION_NAME:
 							workshop_name = answer['answer']
 						if answer['question_identifier'] == settings.PRETIX_WORKSHOP_QUESTION_DESCRIPTION:
 							workshop_description = answer['answer']
-					if workshop_name is None or workshop_description is None:
+						if answer['question_identifier'] == settings.PRETIX_WORKSHOP_QUESTION_TIMESLOT:
+							workshop_timeslot = answer['answer']
+					if workshop_name is None or workshop_description is None or workshop_timeslot is None:
 						raise ValueError("Got an Workshop without answers from order {}".format(order['code']))
+					if workshop_timeslot not in timeslot_mapping:
+						raise ValueError("Got an Workshop with an invalid timeslot in order {}".format(order['code']))
 					try:
 						rc_workshop = rc_order.workshop_set.get(order=rc_order, position_id=position['positionid'])
+
 						updated_workshops.add(rc_workshop)
-						if rc_workshop.name == workshop_name and rc_workshop.description == workshop_description:
+						if rc_workshop.name == workshop_name and rc_workshop.description == workshop_description and timeslot_mapping[workshop_timeslot] == rc_workshop.time_slot:
 							continue
 						entry = LogEntry()
 						entry.workshop = rc_workshop
@@ -90,11 +102,13 @@ class Command(BaseCommand):
 						entry.message = workshop_description
 						entry.old_status = rc_workshop.status
 						entry.new_status =  Workshop.STATUS_REVISED
+						entry.time_slot = timeslot_mapping[workshop_timeslot]
 						entry.by_customer = True
 						entry.save()
 						rc_workshop.name = workshop_name
 						rc_workshop.description = workshop_description
 						rc_workshop.status = Workshop.STATUS_REVISED
+						rc_workshop.time_slot = timeslot_mapping[workshop_timeslot]
 						rc_workshop.save()
 
 					except Workshop.DoesNotExist:
@@ -104,6 +118,7 @@ class Command(BaseCommand):
 						rc_workshop.description = workshop_description
 						rc_workshop.position_id = position['positionid']
 						rc_workshop.status = Workshop.STATUS_NEW
+						rc_workshop.time_slot = timeslot_mapping[workshop_timeslot]
 						rc_workshop.save()
 						updated_workshops.add(rc_workshop)
 						entry = LogEntry()
@@ -113,6 +128,7 @@ class Command(BaseCommand):
 						entry.message = workshop_description
 						entry.old_status = None
 						entry.new_status = Workshop.STATUS_NEW
+						entry.time_slot = timeslot_mapping[workshop_timeslot]
 						entry.by_customer = True
 						entry.save()
 
@@ -123,6 +139,7 @@ class Command(BaseCommand):
 						entry.action = "Workshop gelöscht"
 						entry.title = workshop.name
 						entry.message = workshop.description
+						entry.time_slot = workshop.time_slot
 						entry.old_status = workshop.status
 						entry.new_status = Workshop.STATUS_DELETED
 						entry.by_customer = True

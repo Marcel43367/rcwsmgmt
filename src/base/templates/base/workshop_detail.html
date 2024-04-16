@@ -29,11 +29,19 @@
 				</tr>
 				<tr>
 					<th scope="row">Workshop Äquivalenz Punkte</th>
-					<td>{{object.weq}}</td>
+					<td>{{object.get_weq}}</td>
 				</tr>
 				<tr>
 					<th scope="row">Workshop Name</th>
 					<td>{{object.name}}</td>
+				</tr>
+				<tr>
+					<th scope="row">Workshop Phase</th>
+					<td>{{workshop.get_time_slot_display}}</td>
+				</tr>
+				<tr>
+					<th scope="row">Workshop Ort</th>
+					<td>{{workshop.get_location_display}}</td>
 				</tr>
 				<tr>
 					<th scope="row">Workshop Beschreibung</th>
@@ -71,6 +79,7 @@
 <div class="btn-group my-2 mx-2">
 	<a href="{% url 'workshop-equivalent' object.id %}" class="btn btn-primary" role="button">Workshop Äquivalenz Punkte ändern</a>
 	<a href="{% url 'workshop-update' object.id %}" class="btn btn-secondary" role="button">Workshop Status manuell ändern</a>
+	<a href="{% url 'workshop-location' object.id %}" class="btn btn-info" role="button">Workshop Ort ändern</a>
 	<a href="{% url 'workshop-add-to-list' object.id %}" class="btn btn-secondary" role="button">Workshop zu einer Workshopliste hinzufügen</a>
 </div>
 <br>
