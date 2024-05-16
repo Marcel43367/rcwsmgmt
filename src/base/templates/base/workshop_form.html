@@ -1,8 +1,8 @@
 {% extends 'base.html' %}
 
 {% load django_bootstrap5 %}
-{% block title %}Workshop Äquivalenz Punkte ändern{% endblock %}
-{% block header %}Workshop Äquivalenz Punkte ändern{% endblock %}
+{% block title %}{{ edit_title }}{% endblock %}
+{% block header %}{{ edit_title }}{% endblock %}
 {% block body %}
 {% bootstrap_form_errors form %}
 	<form method="post" class="form">

@@ -33,6 +33,11 @@ class WorkshopEquivalentUpdateView(LoginRequiredMixin, UpdateView):
 	fields = ("weq", )
 	success_url = reverse_lazy("order-list")
 
+	def get_context_data(self, **kwargs):
+		ctx = super().get_context_data(**kwargs)
+		ctx['edit_title'] = "Workshop Äquivalenz Punkte ändern"
+		return ctx
+
 class WorkshopUpdateView(LoginRequiredMixin, UpdateView):
 	model = Workshop
 	fields = ("status", )
@@ -40,7 +45,9 @@ class WorkshopUpdateView(LoginRequiredMixin, UpdateView):
 
 	def get_context_data(self, **kwargs):
 		messages.error(self.request, "Achtung du änderst gerade den Status eines Workshops ohne eine Mail zu versenden")
-		return super(WorkshopUpdateView, self).get_context_data(**kwargs)
+		ctx = super().get_context_data(**kwargs)
+		ctx['edit_title'] = "Workshop Status ändern"
+		return ctx
 
 	def form_valid(self, form):
 		entry = LogEntry()
@@ -317,6 +324,11 @@ class WorkshopLocationUpdateView(LoginRequiredMixin, UpdateView):
 	model = Workshop
 	fields = ("location", )
 	success_url = reverse_lazy("order-list")
+
+	def get_context_data(self, **kwargs):
+		ctx = super().get_context_data(**kwargs)
+		ctx['edit_title'] = "Workshop Ort ändern"
+		return ctx
 
 	def form_valid(self, form):
 		entry = LogEntry()
