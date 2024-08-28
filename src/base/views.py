@@ -169,12 +169,16 @@ class WorkshopPrintBatchDownloadView(LoginRequiredMixin, View):
 		sheet.write(0, 1, "Stamm")
 		sheet.write(0, 2, "Name")
 		sheet.write(0, 3, "Workshop Nummer")
+		sheet.write(0, 4, "Zeitslot")
+		sheet.write(0, 5, "Ort")
 		row = 1
 		for workshop in batch.workshop_set.all():
 			sheet.write(row, 0, str(workshop.order.district))
 			sheet.write(row, 1, str(workshop.order.clan))
 			sheet.write(row, 2, str(workshop.name))
 			sheet.write(row, 3, int(workshop.annotated_id))
+			sheet.write(row, 4, str(workshop.get_time_slot_display()))
+			sheet.write(row, 5, str(workshop.get_location_display()))
 			row += 1
 
 		workbook.close()
@@ -194,6 +198,8 @@ class WorkshopAllDownloadView(LoginRequiredMixin, View):
 		sheet.write(0, 1, "Stamm")
 		sheet.write(0, 2, "Name")
 		sheet.write(0, 3, "Workshop Nummer")
+		sheet.write(0, 4, "Zeitslot")
+		sheet.write(0, 5, "Ort")
 		row = 1
 		for workshop in Workshop.objects.filter(status="V"):
 			sheet.write(row, 0, str(workshop.order.district))
@@ -203,6 +209,8 @@ class WorkshopAllDownloadView(LoginRequiredMixin, View):
 				sheet.write(row, 3, "Noch nicht nummeriert")
 			else:
 				sheet.write(row, 3, int(workshop.annotated_id))
+			sheet.write(row, 4, str(workshop.get_time_slot_display()))
+			sheet.write(row, 5, str(workshop.get_location_display()))
 			row += 1
 
 		workbook.close()
@@ -248,6 +256,8 @@ class WorkshopListDownloadView(LoginRequiredMixin, View):
 		sheet.write(0, 1, "Stamm")
 		sheet.write(0, 2, "Name")
 		sheet.write(0, 3, "Workshop Nummer")
+		sheet.write(0, 4, "Zeitslot")
+		sheet.write(0, 5, "Ort")
 		row = 1
 		for workshop in workshop_list.workshops.all():
 			sheet.write(row, 0, str(workshop.order.district))
@@ -257,6 +267,8 @@ class WorkshopListDownloadView(LoginRequiredMixin, View):
 				sheet.write(row, 3, "Noch nicht nummeriert")
 			else:
 				sheet.write(row, 3, int(workshop.annotated_id))
+			sheet.write(row, 4, str(workshop.get_time_slot_display()))
+			sheet.write(row, 5, str(workshop.get_location_display()))
 			row += 1
 
 		workbook.close()
