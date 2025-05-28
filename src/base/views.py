@@ -14,6 +14,7 @@ from xlsxwriter import Workbook
 from base.models import  Workshop, Order, LogEntry, WorkshopPrintBatch, WorkshopList
 from base.forms import WorkshopFeedbackForm, WorkshopAnnotateForm, WorkshopPrintForm, WorkshopAddToListForm
 from base.forms import WorkshopRemoveFromListForm
+import math
 
 class OrderListView(LoginRequiredMixin, ListView):
 	model = Order
@@ -188,6 +189,10 @@ class WorkshopPrintBatchDownloadView(LoginRequiredMixin, View):
 		response['Content-Disposition'] = 'attachment; filename={}'.format(filename)
 		return response
 
+class WorkshopPrintBatchDeleteView(LoginRequiredMixin, DeleteView):
+	model = WorkshopPrintBatch
+	success_url = reverse_lazy('printbatch-list')
+
 class WorkshopAllDownloadView(LoginRequiredMixin, View):
 
 	def get(self, request, *args, **kwargs):
@@ -241,6 +246,35 @@ class ClanListDownloadView(LoginRequiredMixin, View):
 		workbook.close()
 		output.seek(0)
 		filename="Alle-Staemme.xlsx"
+		response = HttpResponse(output, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+		response['Content-Disposition'] = 'attachment; filename={}'.format(filename)
+		return response
+
+class BreakfastListDownloadView(LoginRequiredMixin, View):
+
+	def get(self, request, *args, **kwargs):
+		output = BytesIO()
+		workbook = Workbook(output)
+		sheet = workbook.add_worksheet("Stämme")
+		sheet.write(0, 0, "Diözese / Bezirk")
+		sheet.write(0, 1, "Stamm")
+		sheet.write(0, 2, "Name")
+		sheet.write(0, 3, "Anzahl Teilnehmende")
+		sheet.write(0, 4, "Brötchen")
+		sheet.write(0, 5, "Milch")
+		row = 1
+		for order in Order.objects.all():
+			sheet.write(row, 0, str(order.district))
+			sheet.write(row, 1, str(order.clan))
+			sheet.write(row, 2, str(f"{order.first_name} {order.last_name}"))
+			sheet.write(row, 3, order.participant_count)
+			sheet.write(row, 4, order.participant_count * 2)
+			sheet.write(row, 5, math.ceil(order.participant_count * 0.25))
+			row += 1
+
+		workbook.close()
+		output.seek(0)
+		filename="Fruehstueck.xlsx"
 		response = HttpResponse(output, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 		response['Content-Disposition'] = 'attachment; filename={}'.format(filename)
 		return response
