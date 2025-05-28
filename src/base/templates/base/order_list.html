@@ -3,6 +3,8 @@
 {% block title %}Bestellungen{% endblock %}
 {% block header %}Bestellungen{% endblock %}
 {% block actions %}
+<a href="{% url 'order-download' %}" class="btn btn-primary" role="button">Alle Downloaden</a>
+<a href="{% url 'breakfast-download' %}" class="btn btn-secondary" role="button">Frühstücksliste Downloaden</a>
 {% endblock %}
 {% block body %}
 {% if object_list %}
