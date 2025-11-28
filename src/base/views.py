@@ -3,15 +3,17 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.conf import settings
 from django.core.mail import send_mail
 from django.db.models import Max
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.views.generic import ListView, DetailView, FormView, View, UpdateView, CreateView, DeleteView
 from django.views.generic.base import RedirectView
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
+from django.shortcuts import redirect, render
 from django.urls import reverse, reverse_lazy
 from io import BytesIO
+from django.views.decorators.csrf import csrf_exempt
 from xlsxwriter import Workbook
-from base.models import  Workshop, Order, LogEntry, WorkshopPrintBatch, WorkshopList
+from base.models import  Workshop, Order, LogEntry, WorkshopPrintBatch, WorkshopList, Participant
 from base.forms import WorkshopFeedbackForm, WorkshopAnnotateForm, WorkshopPrintForm, WorkshopAddToListForm
 from base.forms import WorkshopRemoveFromListForm
 import math
@@ -205,6 +207,7 @@ class WorkshopAllDownloadView(LoginRequiredMixin, View):
 		sheet.write(0, 3, "Workshop Nummer")
 		sheet.write(0, 4, "Zeitslot")
 		sheet.write(0, 5, "Ort")
+		sheet.write(0, 6, "Stimmen")
 		row = 1
 		for workshop in Workshop.objects.filter(status="V"):
 			sheet.write(row, 0, str(workshop.order.district))
@@ -216,7 +219,8 @@ class WorkshopAllDownloadView(LoginRequiredMixin, View):
 				sheet.write(row, 3, int(workshop.annotated_id))
 			sheet.write(row, 4, str(workshop.get_time_slot_display()))
 			sheet.write(row, 5, str(workshop.get_location_display()))
-			row += 1
+			sheet.write(row, 6, workshop.voted_participants.count())
+    		row += 1
 
 		workbook.close()
 		output.seek(0)
@@ -393,3 +397,53 @@ class WorkshopLocationUpdateView(LoginRequiredMixin, UpdateView):
 		entry.user = self.request.user
 		entry.save()
 		return valid
+
+class VoteView(ListView):
+	model = Workshop
+	ordering = ['status', 'updated']
+    template_name = "base/vote.html"
+
+class WorkshopVoteListView(ListView):
+	model = Workshop
+	template_name = "base/workshop_votelist.html"
+	context_object_name = "workshops"
+
+	def dispatch(self, request, *args, **kwargs):
+		participant_id = request.GET.get("participant")
+		if not participant_id or not Participant.objects.filter(participant_id=participant_id).exists():
+			# Redirect to vote page or show error
+			return redirect("vote")  # or use messages and redirect
+		self.participant = Participant.objects.get(participant_id=participant_id)
+		return super().dispatch(request, *args, **kwargs)
+
+	def get_queryset(self):
+		# Nur Workshops mit annotated_id, aufsteigend sortiert
+		return Workshop.objects.exclude(annotated_id=None).order_by("annotated_id")
+
+	def get_context_data(self, **kwargs):
+		context = super().get_context_data(**kwargs)
+		context["participant_id"] = self.request.GET.get("participant")
+		context["voted_workshop_ids"] = list(self.participant.votes.values_list("id", flat=True))
+		context["participant_order_id"] = self.participant.order.id
+		return context
+	
+	def post(self, request, *args, **kwargs):
+		votes = request.POST.getlist("votes")
+		if len(votes) > 3:
+			messages.error(request, "Du kannst nur für maximal 3 Workshops abstimmen.")
+			return redirect(f"{request.path}?participant={self.participant.participant_id}")
+		else:
+			self.participant.votes.set(votes)
+			self.participant.save()
+			messages.success(request, "Deine Stimme wurde gespeichert.")
+			return redirect("vote")  # Redirect to VoteView after successful voting
+
+@csrf_exempt
+def check_qr_code(request):
+	if request.method == "POST":
+		import json
+		data = json.loads(request.body)
+		scanned_id = data.get("qr_code")
+		exists = Participant.objects.filter(participant_id=scanned_id).exists()
+		return JsonResponse({"exists": exists})
+	return JsonResponse({"error": "Invalid request"}, status=400)
