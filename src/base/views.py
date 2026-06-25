@@ -220,7 +220,7 @@ class WorkshopAllDownloadView(LoginRequiredMixin, View):
 			sheet.write(row, 4, str(workshop.get_time_slot_display()))
 			sheet.write(row, 5, str(workshop.get_location_display()))
 			sheet.write(row, 6, workshop.voted_participants.count())
-    		row += 1
+			row += 1
 
 		workbook.close()
 		output.seek(0)
@@ -401,7 +401,7 @@ class WorkshopLocationUpdateView(LoginRequiredMixin, UpdateView):
 class VoteView(ListView):
 	model = Workshop
 	ordering = ['status', 'updated']
-    template_name = "base/vote.html"
+	template_name = "base/vote.html"
 
 class WorkshopVoteListView(ListView):
 	model = Workshop
