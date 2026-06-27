@@ -35,6 +35,8 @@ class Command(BaseCommand):
 						rc_order.code = order['code']
 						rc_order.email = order['email']
 						rc_order.secret = order['secret']
+						# participant_count is non-nullable in the database, ensure a default
+						rc_order.participant_count = 0
 						rc_order.save()
 					else:
 						continue
