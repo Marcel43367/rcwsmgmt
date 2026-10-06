@@ -3,10 +3,20 @@
 {% block title %}Workshop Abstimmliste{% endblock %}
 {% block header %}Workshop Abstimmliste{% endblock %}
 {% block body %}
-<p>Bitte gib hier deine Stimme für die besten Workshops ab. Du kannst bis zu 3 Workshops auswählen. Deine Wahl kannst du jederzeit ändern, indem du deinen Code erneut scannst. Für die Workshops, die von deiner Runde angeboten werden, ist eine Abstimmung aus Fairnessgründen nicht möglich.</p>
-<form method="post">
+<p>Bitte gib hier deine Stimme für die besten Workshops ab. Scanne dazu die QR-Codes der Workshops oder wähle sie in der Liste aus. Du kannst bis zu 3 Workshops auswählen. Deine Wahl kannst du jederzeit ändern, indem du deinen Teilnehmercode erneut scannst. Für die Workshops, die von deiner Runde angeboten werden, ist eine Abstimmung aus Fairnessgründen nicht möglich.</p>
+
+<div class="mb-4">
+    <button type="button" id="start-workshop-scanner" class="btn btn-outline-primary">
+        <i class="fas fa-qrcode" aria-hidden="true"></i> Workshop-QR-Code scannen
+    </button>
+    <div id="workshop-qr-reader" class="mt-3" style="display:none; max-width:400px"></div>
+    <div id="workshop-scan-message" class="mt-2" role="status" aria-live="polite"></div>
+</div>
+
+<form method="post" id="vote-form">
     {% csrf_token %}
     <button type="submit" class="btn btn-primary">Abstimmen</button>
+    <button type="button" id="show-all-workshops" class="btn btn-outline-secondary" hidden>Alle Workshops anzeigen</button>
     {% if workshops %}
         <table class="table table-striped">
             <thead>
@@ -19,7 +29,7 @@
             <tbody>
                 {% for workshop in workshops %}
                     {% if workshop.order.id == participant_order_id %}
-                            <tr>
+                            <tr id="workshop-row-{{ workshop.id }}">
                                 <td>
                                     <input type="checkbox" disabled>
                                 </td>
@@ -28,7 +38,7 @@
                                 <td class="text-secondary">{{ workshop.order.clan }}</td>
                             </tr>
                     {% else %}
-                        <tr>
+                        <tr id="workshop-row-{{ workshop.id }}">
                             <td>
                                 <input type="checkbox" name="votes" value="{{ workshop.id }}"
                                     {% if workshop.id in voted_workshop_ids %}checked{% endif %}>
@@ -45,4 +55,104 @@
     Keine Workshops gefunden!
     {% endif %}
 </form>
+
+<script src="https://unpkg.com/html5-qrcode"></script>
+<script>
+    const scannerButton = document.getElementById('start-workshop-scanner');
+    const scannerContainer = document.getElementById('workshop-qr-reader');
+    const scanMessage = document.getElementById('workshop-scan-message');
+    let workshopScanner = null;
+    let scanInProgress = false;
+
+    function showSelectedWorkshopsOnly() {
+        document.querySelectorAll('#vote-form tbody tr').forEach(function(row) {
+            const checkbox = row.querySelector('input[name="votes"]');
+            row.hidden = !checkbox || !checkbox.checked;
+        });
+        document.getElementById('show-all-workshops').hidden = false;
+    }
+
+    function showScanMessage(message, isError) {
+        scanMessage.textContent = message;
+        scanMessage.className = isError ? 'mt-2 text-danger' : 'mt-2 text-success';
+    }
+
+    async function onWorkshopScanSuccess(decodedText) {
+        if (scanInProgress) return;
+        scanInProgress = true;
+
+        try {
+            const response = await fetch('{% url "check_workshop_qr_code" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: JSON.stringify({
+                    qr_code: decodedText,
+                    participant_id: '{{ participant_id|escapejs }}'
+                })
+            });
+            const data = await response.json();
+            if (!response.ok) {
+                showScanMessage(data.error || 'Der QR-Code konnte nicht gelesen werden.', true);
+                return;
+            }
+
+            const checkbox = document.querySelector(`input[name="votes"][value="${data.workshop_id}"]`);
+            if (!checkbox) {
+                showScanMessage('Dieser Workshop steht nicht zur Abstimmung.', true);
+                return;
+            }
+            if (!checkbox.checked && document.querySelectorAll('input[name="votes"]:checked').length >= 3) {
+                showScanMessage('Du kannst nur für maximal 3 Workshops abstimmen.', true);
+                return;
+            }
+
+            checkbox.checked = true;
+            const row = document.getElementById(`workshop-row-${data.workshop_id}`);
+            row.classList.add('table-success');
+            showSelectedWorkshopsOnly();
+            showScanMessage(`„${data.workshop_name}“ wurde ausgewählt.`, false);
+        } catch (error) {
+            showScanMessage('Der Workshop-Code konnte nicht geprüft werden.', true);
+        } finally {
+            window.setTimeout(() => { scanInProgress = false; }, 1500);
+        }
+    }
+
+    scannerButton.addEventListener('click', async function() {
+        if (workshopScanner) return;
+        scannerContainer.style.display = 'block';
+        workshopScanner = new Html5Qrcode('workshop-qr-reader');
+        try {
+            await workshopScanner.start(
+                { facingMode: 'environment' },
+                { fps: 10, qrbox: 250 },
+                onWorkshopScanSuccess
+            );
+            scannerButton.disabled = true;
+        } catch (error) {
+            workshopScanner = null;
+            scannerContainer.style.display = 'none';
+            showScanMessage('Die Kamera konnte nicht gestartet werden.', true);
+        }
+    });
+
+    document.getElementById('show-all-workshops').addEventListener('click', function() {
+        document.querySelectorAll('#vote-form tbody tr').forEach(function(row) {
+            row.hidden = false;
+        });
+        this.hidden = true;
+    });
+
+    document.querySelectorAll('input[name="votes"]').forEach(function(checkbox) {
+        checkbox.addEventListener('change', function() {
+            if (document.querySelectorAll('input[name="votes"]:checked').length > 3) {
+                checkbox.checked = false;
+                showScanMessage('Du kannst nur für maximal 3 Workshops abstimmen.', true);
+            }
+        });
+    });
+</script>
 {% endblock %}

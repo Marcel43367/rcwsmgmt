@@ -111,6 +111,7 @@ class Workshop(Model):
 	order = ForeignKey(Order, on_delete=CASCADE)
 	description = TextField(verbose_name="Beschreibung")
 	position_id = PositiveIntegerField()
+	ticket_code = CharField(max_length=64, null=True, blank=True, unique=True, verbose_name="Ticketcode")
 	weq = PositiveIntegerField(default=1, verbose_name="Workshop Äquivalenz Punkte")
 	time_slot = CharField(max_length=1, choices=TIMESLOT_CHOICE, verbose_name="Workshopphase")
 	location = CharField(max_length=1, choices=LOCATION_CHOICES, default=LOCATION_CENTRAL, verbose_name="Ort")

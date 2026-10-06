@@ -4,34 +4,68 @@
 {% block header %}Abstimmen{% endblock %}
 {% block content %}
 
-<h2>Zum Abstimmen bitte Ticket scannen</h2>
+<h2 id="scan-heading">Zum Abstimmen bitte Teilnehmercode oder Workshop-QR-Code scannen</h2>
 <div id="qr-reader" style="width:300px"></div>
 <div>
     <label for="qr-file">Oder lade ein Bild hoch:</label>
     <input type="file" id="qr-file" accept="image/*">
 </div>
+<div id="scan-message" class="mt-2" role="status" aria-live="polite"></div>
 
 <!-- Include html5-qrcode library -->
 <script src="https://unpkg.com/html5-qrcode"></script>
 <script>
-    function onScanSuccess(decodedText, decodedResult) {
+    let pendingWorkshopId = null;
+    let scanInProgress = false;
 
-        fetch('/api/check_qr_code/', {
+    function showScanMessage(message, isError) {
+        const scanMessage = document.getElementById('scan-message');
+        scanMessage.textContent = message;
+        scanMessage.className = isError ? 'mt-2 text-danger' : 'mt-2 text-success';
+    }
+
+    async function onScanSuccess(decodedText) {
+        if (scanInProgress) return;
+        scanInProgress = true;
+
+        try {
+            const response = await fetch('{% url "check_voting_qr_code" %}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ qr_code: decodedText })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.exists) {
-                // Redirect to workshop_votelist view with participant id
-                window.location.href = "/workshop_votelist/?participant=" + encodeURIComponent(decodedText);
-            } else {
-                alert("Ungültiger QR-Code. Bitte versuche es erneut.");
+            body: JSON.stringify({
+                qr_code: decodedText,
+                pending_workshop_id: pendingWorkshopId
+            })
+            });
+            const data = await response.json();
+            if (!response.ok) {
+                showScanMessage(data.error || 'Ungültiger QR-Code. Bitte versuche es erneut.', true);
+                return;
             }
-        });
+
+            if (pendingWorkshopId === null && data.type === 'workshop') {
+                pendingWorkshopId = data.workshop_id;
+                document.getElementById('scan-heading').textContent = 'Jetzt bitte Teilnehmercode scannen';
+                showScanMessage('Workshop erkannt. Bitte scanne jetzt deinen Teilnehmercode.', false);
+                return;
+            }
+            if (data.type === 'participant') {
+                let destination = "/workshop_votelist/?participant=" + encodeURIComponent(decodedText);
+                if (pendingWorkshopId !== null) {
+                    destination += "&workshop=" + encodeURIComponent(pendingWorkshopId);
+                }
+                window.location.href = destination;
+                return;
+            }
+
+            showScanMessage('Bitte scanne jetzt deinen Teilnehmercode.', true);
+        } catch (error) {
+            showScanMessage('Der QR-Code konnte nicht geprüft werden.', true);
+        } finally {
+            window.setTimeout(() => { scanInProgress = false; }, 1500);
+        }
     }
 
     let qrScanner = new Html5Qrcode("qr-reader");
