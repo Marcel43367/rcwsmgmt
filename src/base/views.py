@@ -492,7 +492,13 @@ class WorkshopVoteListView(ListView):
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
 		context["participant_id"] = self.request.GET.get("participant")
-		context["voted_workshop_ids"] = list(self.participant.votes.values_list("id", flat=True))
+		voted_workshop_ids = list(self.participant.votes.values_list("id", flat=True))
+		preselected_workshop_id = self.request.GET.get("workshop")
+		if preselected_workshop_id and len(voted_workshop_ids) < 3:
+			preselected_workshop = self.get_queryset().exclude(order=self.participant.order).filter(id=preselected_workshop_id).first()
+			if preselected_workshop is not None:
+				voted_workshop_ids.append(preselected_workshop.id)
+		context["voted_workshop_ids"] = voted_workshop_ids
 		context["participant_order_id"] = self.participant.order.id
 		return context
 	
@@ -501,18 +507,65 @@ class WorkshopVoteListView(ListView):
 		if len(votes) > 3:
 			messages.error(request, "Du kannst nur für maximal 3 Workshops abstimmen.")
 			return redirect(f"{request.path}?participant={self.participant.participant_id}")
-		else:
-			self.participant.votes.set(votes)
-			self.participant.save()
-			messages.success(request, "Deine Stimme wurde gespeichert.")
-			return redirect("vote")  # Redirect to VoteView after successful voting
+
+		valid_workshops = self.get_queryset().exclude(order=self.participant.order).filter(id__in=votes)
+		if valid_workshops.count() != len(set(votes)):
+			messages.error(request, "Mindestens ein ausgewählter Workshop ist ungültig.")
+			return redirect(f"{request.path}?participant={self.participant.participant_id}")
+
+		self.participant.votes.set(valid_workshops)
+		self.participant.save()
+		messages.success(request, "Deine Stimme wurde gespeichert.")
+		return redirect("vote")  # Redirect to VoteView after successful voting
+
+
+def check_workshop_qr_code(request):
+	if request.method != "POST":
+		return JsonResponse({"error": "Invalid request"}, status=400)
+
+	import json
+	try:
+		data = json.loads(request.body)
+	except json.JSONDecodeError:
+		return JsonResponse({"error": "Invalid request"}, status=400)
+
+	participant = Participant.objects.filter(participant_id=data.get("participant_id")).first()
+	if participant is None:
+		return JsonResponse({"error": "Ungültiger Teilnehmercode."}, status=400)
+
+	workshop = Workshop.objects.filter(ticket_code=data.get("qr_code")).exclude(annotated_id=None).first()
+	if workshop is None:
+		return JsonResponse({"error": "Ungültiger Workshop-Code."}, status=404)
+	if workshop.order_id == participant.order_id:
+		return JsonResponse({"error": "Für Workshops deiner eigenen Runde kannst du nicht abstimmen."}, status=400)
+
+	return JsonResponse({
+		"workshop_id": workshop.id,
+		"workshop_name": workshop.name,
+	})
+
 
 @csrf_exempt
-def check_qr_code(request):
-	if request.method == "POST":
-		import json
+def check_voting_qr_code(request):
+	if request.method != "POST":
+		return JsonResponse({"error": "Invalid request"}, status=400)
+
+	import json
+	try:
 		data = json.loads(request.body)
-		scanned_id = data.get("qr_code")
-		exists = Participant.objects.filter(participant_id=scanned_id).exists()
-		return JsonResponse({"exists": exists})
-	return JsonResponse({"error": "Invalid request"}, status=400)
+	except json.JSONDecodeError:
+		return JsonResponse({"error": "Invalid request"}, status=400)
+
+	qr_code = data.get("qr_code")
+	participant = Participant.objects.filter(participant_id=qr_code).first()
+	if participant is not None:
+		pending_workshop_id = data.get("pending_workshop_id")
+		if pending_workshop_id and Workshop.objects.filter(id=pending_workshop_id, order=participant.order).exists():
+			return JsonResponse({"error": "Für Workshops deiner eigenen Runde kannst du nicht abstimmen."}, status=400)
+		return JsonResponse({"type": "participant"})
+
+	workshop = Workshop.objects.filter(ticket_code=qr_code).exclude(annotated_id=None).first()
+	if workshop is not None:
+		return JsonResponse({"type": "workshop", "workshop_id": workshop.id})
+
+	return JsonResponse({"error": "Ungültiger QR-Code."}, status=404)

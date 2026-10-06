@@ -5,7 +5,7 @@ from base.views import WorkshopPrintBatchDownloadView, WorkshopPrintBatchDeleteV
 from base.views import WorkshopListCreateView, WorkshopListListView, WorkshopListDetailView, WorkshopListDeleteView
 from base.views import WorkshopAddToListFormView, WorkshopRemoveFromListFormView, WorkshopListDownloadView
 from base.views import WorkshopAllDownloadView, ClanListDownloadView, BreakfastListDownloadView, WorkshopLocationUpdateView
-from base.views import WorkshopVoteListView, VoteView, check_qr_code, RuntimeSettingsView, ClearEventDataView, TriggerWorkshopSyncView
+from base.views import WorkshopVoteListView, VoteView, check_workshop_qr_code, check_voting_qr_code, RuntimeSettingsView, ClearEventDataView, TriggerWorkshopSyncView
 urlpatterns = [
     path('', WorkshopListView.as_view(), name="workshop-list"),
     path('settings/runtime', RuntimeSettingsView.as_view(), name='runtime-settings'),
@@ -35,7 +35,8 @@ urlpatterns = [
     path('lists/<int:pk>/delete', WorkshopListDeleteView.as_view(), name='workshoplist-delete'),
     path('lists/<int:pk>/download', WorkshopListDownloadView.as_view(), name='workshoplist-download'),
     path('vote/', VoteView.as_view(), name="vote"),
-    path('api/check_qr_code/', check_qr_code, name='check_qr_code'),
+    path('api/check_workshop_qr_code/', check_workshop_qr_code, name='check_workshop_qr_code'),
+    path('api/check_voting_qr_code/', check_voting_qr_code, name='check_voting_qr_code'),
     path('workshop_votelist/', WorkshopVoteListView.as_view(), name='workshop-votelist'),
 
 ]

@@ -91,6 +91,7 @@ class Command(BaseCommand):
 					workshop_name = None
 					workshop_description = None
 					workshop_timeslot = None
+					workshop_ticket_code = position.get('secret')
 					for answer in position['answers']:
 						if answer['question_identifier'] == settings.PRETIX_WORKSHOP_QUESTION_NAME:
 							workshop_name = answer['answer']
@@ -98,8 +99,8 @@ class Command(BaseCommand):
 							workshop_description = answer['answer']
 						if answer['question_identifier'] == settings.PRETIX_WORKSHOP_QUESTION_TIMESLOT:
 							workshop_timeslot = answer['answer']
-					if workshop_name is None or workshop_description is None or workshop_timeslot is None:
-						raise ValueError("Got an Workshop without answers from order {}".format(order['code']))
+					if workshop_name is None or workshop_description is None or workshop_timeslot is None or workshop_ticket_code is None:
+						raise ValueError("Got a workshop with missing required data from order {}".format(order['code']))
 					if workshop_timeslot not in timeslot_mapping:
 						raise ValueError("Got an Workshop with an invalid timeslot in order {}".format(order['code']))
 					try:
@@ -107,6 +108,9 @@ class Command(BaseCommand):
 
 						updated_workshops.add(rc_workshop)
 						if rc_workshop.name == workshop_name and rc_workshop.description == workshop_description and timeslot_mapping[workshop_timeslot] == rc_workshop.time_slot:
+							if rc_workshop.ticket_code != workshop_ticket_code:
+								rc_workshop.ticket_code = workshop_ticket_code
+								rc_workshop.save()
 							continue
 						entry = LogEntry()
 						entry.workshop = rc_workshop
@@ -122,6 +126,7 @@ class Command(BaseCommand):
 						rc_workshop.description = workshop_description
 						rc_workshop.status = Workshop.STATUS_REVISED
 						rc_workshop.time_slot = timeslot_mapping[workshop_timeslot]
+						rc_workshop.ticket_code = workshop_ticket_code
 						rc_workshop.save()
 
 					except Workshop.DoesNotExist:
@@ -130,6 +135,7 @@ class Command(BaseCommand):
 						rc_workshop.name = workshop_name
 						rc_workshop.description = workshop_description
 						rc_workshop.position_id = position['positionid']
+						rc_workshop.ticket_code = workshop_ticket_code
 						rc_workshop.status = Workshop.STATUS_NEW
 						rc_workshop.time_slot = timeslot_mapping[workshop_timeslot]
 						rc_workshop.save()
