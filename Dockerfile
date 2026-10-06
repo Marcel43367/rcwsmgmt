@@ -5,6 +5,8 @@ WORKDIR /app
 COPY ./src/ /app/
 COPY ./requirements.txt /app/requirements.txt
 COPY docker-entrypoint.sh /docker-entrypoint.sh
+RUN sed -i 's/\r$//' /docker-entrypoint.sh \
+    && chmod +x /docker-entrypoint.sh
 RUN apt-get update
 RUN apt-get install gettext -y
 COPY autoSyncWorkshops.py /app/
